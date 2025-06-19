@@ -1,25 +1,48 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
+import javafx.scene.control.Button;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
     @Override
     public void start(Stage primaryStage) {
-        Scene scene = new Scene(createContent(), 400, 200);
+        Pet myPet = new Pet("cat");
+
+        Text petStatus = new Text(myPet.getStatus());
+
+        Button feedButton = new Button("Feed Pet");
+        Button playButton = new Button("Play with Pet");
+        Button sleepButton = new Button("Put Pet to Sleep");
+
+        feedButton.setOnAction(e -> {
+            myPet.feed();
+            petStatus.setText(myPet.getStatus());
+        });
+
+        playButton.setOnAction(e -> {
+            myPet.play();
+            petStatus.setText(myPet.getStatus());
+        });
+
+        sleepButton.setOnAction(e -> {
+            myPet.sleep();
+            petStatus.setText(myPet.getStatus());
+        });
+
+        VBox root = new VBox(petStatus, feedButton, playButton, sleepButton);
+
+        Scene scene = new Scene(root, 400, 300);
+
         primaryStage.setScene(scene);
+        primaryStage.setTitle("My Pet Game");
         primaryStage.show();
     }
 
-    private Region createContent() {
-        return new HBox(new Label("Name: "), new TextField(""));
+    public static void main(String[] args) {
+        launch(args);
     }
 }

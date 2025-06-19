@@ -6,13 +6,13 @@ public class Pet {
     private static final int STARTING_STAT_VALUE = 5;
 
     private String name;
-    private int hunger;
+    private int nutrients;
     private int happiness;
     private int energy;
 
     public Pet(String name) {
         this.name = name;
-        hunger = STARTING_STAT_VALUE;
+        nutrients = STARTING_STAT_VALUE;
         happiness = STARTING_STAT_VALUE;
         energy = STARTING_STAT_VALUE;
     }
@@ -32,7 +32,7 @@ public class Pet {
 
     // function to feed pet, increases hunger + happiness
     public void feed() {
-        hunger = clampStat(hunger + 1);
+        nutrients = clampStat(nutrients + 1);
         happiness = clampStat(happiness + 1);
     }
 
@@ -40,7 +40,7 @@ public class Pet {
     public void play() {
         happiness = clampStat(happiness + 2);
         energy = clampStat(energy - 1);
-        hunger = clampStat(hunger - 1);
+        nutrients = clampStat(nutrients - 1);
     }
 
     // function to make pet sleep
@@ -48,8 +48,8 @@ public class Pet {
         energy = clampStat(energy + 3);
     }
 
-    public int getHunger() {
-        return hunger;
+    public int getNutrients() {
+        return nutrients;
     }
 
     public int getHappiness() {
@@ -61,7 +61,7 @@ public class Pet {
     }
 
     public String getStatus() {
-        return name + " | Hunger: " + hunger + " | Happiness: " + happiness + " | Energy: " + energy;
+        return name + " | Nutrients: " + nutrients + " | Happiness: " + happiness + " | Energy: " + energy;
     }
 
 }
