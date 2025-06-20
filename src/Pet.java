@@ -32,7 +32,7 @@ public class Pet {
 
     // function to feed pet, increases hunger + happiness
     public void feed() {
-        nutrients = clampStat(nutrients + 1);
+        nutrients = clampStat(nutrients + 3);
         happiness = clampStat(happiness + 1);
     }
 
@@ -46,6 +46,7 @@ public class Pet {
     // function to make pet sleep
     public void sleep() {
         energy = clampStat(energy + 3);
+        nutrients = clampStat(nutrients - 1);
     }
 
     public int getNutrients() {
