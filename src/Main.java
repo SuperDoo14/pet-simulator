@@ -4,7 +4,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -18,29 +17,73 @@ import javafx.scene.layout.HBox;
 
 public class Main extends Application {
 
-    private Rectangle fillBar;
-    private Rectangle emptyBar;
+    private Rectangle nutrientsFillBar;
+    private Rectangle nutrientsEmptyBar;
+    private Rectangle happinessFillBar;
+    private Rectangle happinessEmptyBar;
+    private Rectangle energyFillBar;
+    private Rectangle energyEmptyBar;
+
     private Pet myPet;
 
     // update nutrient bar visual
     private void updateNutrientBar() {
         // calculate widths
-        double fillWidth = ((myPet.getNutrients() / 10.0) * 200);
-        double emptyWidth = 200 - fillWidth;
+        double fillWidth = ((myPet.getNutrients() / 10.0) * 130);
+        double emptyWidth = 130 - fillWidth;
 
-        fillBar.setWidth(fillWidth);
-        emptyBar.setWidth(emptyWidth);
+        nutrientsFillBar.setWidth(fillWidth);
+        nutrientsEmptyBar.setWidth(emptyWidth);
 
         // determine the colour of nutrient bar depending on value
         if (myPet.getNutrients() <= 3) {
-            fillBar.setFill(javafx.scene.paint.Color.RED);
+            nutrientsFillBar.setFill(javafx.scene.paint.Color.RED);
         } else if (myPet.getNutrients() <= 6) {
-            fillBar.setFill(javafx.scene.paint.Color.YELLOW);
+            nutrientsFillBar.setFill(javafx.scene.paint.Color.GOLD);
         } else {
-            fillBar.setFill(javafx.scene.paint.Color.GREEN);
+            nutrientsFillBar.setFill(javafx.scene.paint.Color.GREEN);
         }
-
     }
+
+    // update happiness bar visual
+    private void updateHappinessBar() {
+        // calculate widths
+        double fillWidth = ((myPet.getHappiness() / 10.0) * 130);
+        double emptyWidth = 130 - fillWidth;
+
+        happinessFillBar.setWidth(fillWidth);
+        happinessEmptyBar.setWidth(emptyWidth);
+
+        // determine the colour of happiness bar depending on value
+        if (myPet.getHappiness() <= 3) {
+            happinessFillBar.setFill(javafx.scene.paint.Color.RED);
+        } else if (myPet.getHappiness() <= 6) {
+            happinessFillBar.setFill(javafx.scene.paint.Color.GOLD);
+        } else {
+            happinessFillBar.setFill(javafx.scene.paint.Color.GREEN);
+        }
+    }
+
+    // update energy bar visual
+    private void updateEnergyBar() {
+        // calculate widths
+        double fillWidth = ((myPet.getEnergy() / 10.0) * 130);
+        double emptyWidth = 130 - fillWidth;
+
+        energyFillBar.setWidth(fillWidth);
+        energyEmptyBar.setWidth(emptyWidth);
+
+        // determine the colour of energy bar depending on value
+        if (myPet.getEnergy() <= 3) {
+            energyFillBar.setFill(javafx.scene.paint.Color.RED);
+        } else if (myPet.getEnergy() <= 6) {
+            energyFillBar.setFill(javafx.scene.paint.Color.GOLD);
+        } else {
+            energyFillBar.setFill(javafx.scene.paint.Color.GREEN);
+        }
+    }
+
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -91,6 +134,8 @@ public class Main extends Application {
             timeline.play();
 
             updateNutrientBar();
+            updateHappinessBar();
+            updateEnergyBar();
         });
 
         // button to play with pet
@@ -138,6 +183,8 @@ public class Main extends Application {
             timeline.play();
 
             updateNutrientBar();
+            updateHappinessBar();
+            updateEnergyBar();
         });
 
         // button to put the pet to sleep
@@ -170,24 +217,45 @@ public class Main extends Application {
             });
 
             updateNutrientBar();
+            updateHappinessBar();
+            updateEnergyBar();
         });
 
-        // create the initial rectangles
-        double fillWidth = (myPet.getNutrients() / 10.0) * 200;
-        double emptyWidth = 200 - fillWidth;
+        // nutrients bar
+        double nutrientsFillWidth = (myPet.getNutrients() / 10.0) * 130;
+        double nutrientsEmptyWidth = 130 - nutrientsFillWidth;
+        nutrientsFillBar = new Rectangle(nutrientsFillWidth, 10);
+        nutrientsFillBar.setFill(javafx.scene.paint.Color.GREEN);
+        nutrientsEmptyBar = new Rectangle(nutrientsEmptyWidth, 10);
+        nutrientsEmptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
 
-        fillBar = new Rectangle(fillWidth, 20);
-        fillBar.setFill(javafx.scene.paint.Color.GREEN);
+        // happiness bar
+        double happinessFillWidth = (myPet.getHappiness() / 10.0) * 130;
+        double happinessEmptyWidth = 130 - happinessFillWidth;
+        happinessFillBar = new Rectangle(happinessFillWidth, 10);
+        happinessFillBar.setFill(javafx.scene.paint.Color.GREEN);
+        happinessEmptyBar = new Rectangle(happinessEmptyWidth, 10);
+        happinessEmptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
 
-        emptyBar = new Rectangle(emptyWidth, 20);
-        emptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
+        // energy bar
+        double energyFillWidth = (myPet.getEnergy() / 10.0) * 130;
+        double energyEmptyWidth = 130 - energyFillWidth;
+        energyFillBar = new Rectangle(energyFillWidth, 10);
+        energyFillBar.setFill(javafx.scene.paint.Color.GREEN);
+        energyEmptyBar = new Rectangle(energyEmptyWidth, 10);
+        energyEmptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
 
-        // put the nutrient bars side by side
-        HBox nutrientBarContainer = new HBox(fillBar, emptyBar);
-        nutrientBarContainer.setAlignment(Pos.CENTER);
+        // containers for each pet status bar
+        HBox nutrientBarContainer = new HBox(nutrientsFillBar, nutrientsEmptyBar);
+        HBox happinessBarContainer = new HBox(happinessFillBar, happinessEmptyBar);
+        HBox energyBarContainer = new HBox(energyFillBar, energyEmptyBar);
+
+        // container for all of the bars in one
+        HBox allBarsContainer = new HBox(20, nutrientBarContainer, happinessBarContainer, energyBarContainer);
+        allBarsContainer.setAlignment(Pos.CENTER);
 
         // layout for the gui components
-        VBox root = new VBox(10, spriteView, petStatus, nutrientBarContainer, feedButton, playButton, sleepButton);
+        VBox root = new VBox(10, allBarsContainer, spriteView, petStatus, feedButton, playButton, sleepButton);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 600);

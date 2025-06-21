@@ -3,7 +3,7 @@ public class Pet {
     // constant values for pet stats
     private static final int MAX_STAT_VALUE = 10;
     private static final int MIN_STAT_VALUE = 0;
-    private static final int STARTING_STAT_VALUE = 5;
+    private static final int STARTING_STAT_VALUE = 7;
 
     private String name;
     private int nutrients;
