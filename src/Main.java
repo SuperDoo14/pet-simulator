@@ -22,6 +22,26 @@ public class Main extends Application {
     private Rectangle emptyBar;
     private Pet myPet;
 
+    // update nutrient bar visual
+    private void updateNutrientBar() {
+        // calculate widths
+        double fillWidth = ((myPet.getNutrients() / 10.0) * 200);
+        double emptyWidth = 200 - fillWidth;
+
+        fillBar.setWidth(fillWidth);
+        emptyBar.setWidth(emptyWidth);
+
+        // determine the colour of nutrient bar depending on value
+        if (myPet.getNutrients() <= 3) {
+            fillBar.setFill(javafx.scene.paint.Color.RED);
+        } else if (myPet.getNutrients() <= 6) {
+            fillBar.setFill(javafx.scene.paint.Color.YELLOW);
+        } else {
+            fillBar.setFill(javafx.scene.paint.Color.GREEN);
+        }
+
+    }
+
     @Override
     public void start(Stage primaryStage) {
         myPet = new Pet("cat");
@@ -70,13 +90,7 @@ public class Main extends Application {
 
             timeline.play();
 
-            // calculate the filled and empty portions of food bar
-            double fillWidth = (myPet.getNutrients() / 10.0) * 200;
-            double emptyWidth = 200 - fillWidth;
-
-            // set the new width for each part of the bar
-            fillBar.setWidth(fillWidth);
-            emptyBar.setWidth(emptyWidth);
+            updateNutrientBar();
         });
 
         // button to play with pet
@@ -122,6 +136,8 @@ public class Main extends Application {
             });
 
             timeline.play();
+
+            updateNutrientBar();
         });
 
         // button to put the pet to sleep
@@ -152,21 +168,21 @@ public class Main extends Application {
                 }));
                 pauseTimeline.play();
             });
+
+            updateNutrientBar();
         });
 
-        // calculate the filled and empty portions of food bar
+        // create the initial rectangles
         double fillWidth = (myPet.getNutrients() / 10.0) * 200;
         double emptyWidth = 200 - fillWidth;
 
-        // green part (filled)
         fillBar = new Rectangle(fillWidth, 20);
         fillBar.setFill(javafx.scene.paint.Color.GREEN);
 
-        // grey part (empty)
         emptyBar = new Rectangle(emptyWidth, 20);
         emptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
 
-        // put them side by side
+        // put the nutrient bars side by side
         HBox nutrientBarContainer = new HBox(fillBar, emptyBar);
         nutrientBarContainer.setAlignment(Pos.CENTER);
 
