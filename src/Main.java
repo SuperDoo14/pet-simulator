@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -11,12 +12,19 @@ import javafx.geometry.Pos;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.HBox;
+
 
 public class Main extends Application {
 
+    private Rectangle fillBar;
+    private Rectangle emptyBar;
+    private Pet myPet;
+
     @Override
     public void start(Stage primaryStage) {
-        Pet myPet = new Pet("cat");
+        myPet = new Pet("cat");
 
         // loading sprite sheet image to be used within program
         Image spriteSheet = new Image("file:src/images/pet.png");
@@ -61,6 +69,14 @@ public class Main extends Application {
             });
 
             timeline.play();
+
+            // calculate the filled and empty portions of food bar
+            double fillWidth = (myPet.getNutrients() / 10.0) * 200;
+            double emptyWidth = 200 - fillWidth;
+
+            // set the new width for each part of the bar
+            fillBar.setWidth(fillWidth);
+            emptyBar.setWidth(emptyWidth);
         });
 
         // button to play with pet
@@ -132,14 +148,30 @@ public class Main extends Application {
                 spriteView.setViewport(new Rectangle2D(384 * 3, 0, 384, 384));
 
                 Timeline pauseTimeline = new Timeline(new KeyFrame(Duration.millis(1000), pauseEvent -> {
-                    spriteView.setViewport(new Rectangle2D(384, 0, 384, 384));
+                    spriteView.setViewport(new Rectangle2D(0, 0, 384, 384));
                 }));
                 pauseTimeline.play();
             });
         });
 
+        // calculate the filled and empty portions of food bar
+        double fillWidth = (myPet.getNutrients() / 10.0) * 200;
+        double emptyWidth = 200 - fillWidth;
+
+        // green part (filled)
+        fillBar = new Rectangle(fillWidth, 20);
+        fillBar.setFill(javafx.scene.paint.Color.GREEN);
+
+        // grey part (empty)
+        emptyBar = new Rectangle(emptyWidth, 20);
+        emptyBar.setFill(javafx.scene.paint.Color.LIGHTGRAY);
+
+        // put them side by side
+        HBox nutrientBarContainer = new HBox(fillBar, emptyBar);
+        nutrientBarContainer.setAlignment(Pos.CENTER);
+
         // layout for the gui components
-        VBox root = new VBox(spriteView, petStatus, feedButton, playButton, sleepButton);
+        VBox root = new VBox(10, spriteView, petStatus, nutrientBarContainer, feedButton, playButton, sleepButton);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 600);
