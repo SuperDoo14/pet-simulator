@@ -19,6 +19,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.control.TextField;
 
 
+
+
 public class Main extends Application {
 
     private Rectangle nutrientsFillBar;
@@ -32,7 +34,12 @@ public class Main extends Application {
     private ImageView playButton;
     private ImageView sleepButton;
 
+    private ImageView spriteView;
+
     private boolean isAnimationRunning = false;
+    private boolean isPetCrying = false;
+    private Timeline cryingLoop;
+    private Timeline stopCheckTimer;
 
     private Pet myPet;
 
@@ -107,6 +114,107 @@ public class Main extends Application {
         sleepButton.setDisable(false);
     }
 
+    // decrease stats over time to simulate real pet management
+    private void decayStats() {
+        if (isAnimationRunning) {
+            return; // skip decay if animation is happening
+        }
+        // decrease each stat by 1 but not below 0
+        myPet.setNutrients(Math.max(0, myPet.getNutrients() - 1));
+        myPet.setHappiness(Math.max(0, myPet.getHappiness() - 1));
+        myPet.setEnergy(Math.max(0, myPet.getEnergy() - 1));
+
+        // update the visual bars
+        updateNutrientBar();
+        updateHappinessBar();
+        updateEnergyBar();
+
+        checkForEmptyStats();
+    }
+
+    // check if any stats are empty, if so show crying animation of pet
+    private void checkForEmptyStats() {
+        if (myPet.getNutrients() == 0 || myPet.getHappiness() == 0 || myPet.getEnergy() == 0) {
+            showCryingAnimation();
+        }
+    }
+
+    // show the crying pet animation
+    private void showCryingAnimation() {
+        // don't show crying if already in crying animation
+        if (isPetCrying) {
+            return;
+        }
+
+        // only show crying if not already animating
+        if (isAnimationRunning) {
+            return;
+        }
+
+        isPetCrying = true;
+
+        // create timeline for the initial sequence
+        Timeline initialCryingSequence = new Timeline();
+
+        // add keyframes for sprites
+        for (int spriteNum = 30; spriteNum <= 34; spriteNum++) {
+            int timeMs = (spriteNum - 30) * 500; // 500ms per frame
+            final int currentSprite = spriteNum;
+
+            KeyFrame frame = new KeyFrame(Duration.millis(timeMs), event -> {
+                spriteView.setViewport(new Rectangle2D(384 * currentSprite, 0, 384, 384));
+            });
+
+            initialCryingSequence.getKeyFrames().add(frame);
+        }
+
+        // after initial sequence, start the alternating loop
+        initialCryingSequence.setOnFinished(event -> {
+            startCryingLoop();
+        });
+
+        initialCryingSequence.play();
+    }
+
+    // helper function to stop all crying
+    private void stopCrying() {
+        isPetCrying = false;
+
+        if (cryingLoop != null) {
+            cryingLoop.stop();
+        }
+        if (stopCheckTimer != null) {
+            stopCheckTimer.stop();
+        }
+
+        spriteView.setViewport(new Rectangle2D(0, 0, 384, 384));
+    }
+
+    // loop of crying pet until all stat bars are not empty
+    private void startCryingLoop() {
+        // store reference so we can stop it later
+        cryingLoop = new Timeline(
+                new KeyFrame(Duration.millis(600), e -> {
+                    spriteView.setViewport(new Rectangle2D(384 * 33, 0, 384, 384));
+                }),
+                new KeyFrame(Duration.millis(1200), e -> {
+                    spriteView.setViewport(new Rectangle2D(384 * 34, 0, 384, 384));
+                })
+        );
+
+        cryingLoop.setCycleCount(Timeline.INDEFINITE);
+        cryingLoop.play();
+
+        // store reference so we can stop it later
+        stopCheckTimer = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
+            if (myPet.getNutrients() > 0 && myPet.getHappiness() > 0 && myPet.getEnergy() > 0) {
+                stopCrying();
+            }
+        }));
+        stopCheckTimer.setCycleCount(Timeline.INDEFINITE);
+        stopCheckTimer.play();
+    }
+
     @Override
     public void start(Stage primaryStage) {
         Scene homeScene = createHomeScene(primaryStage);
@@ -127,6 +235,7 @@ public class Main extends Application {
         primaryStage.setTitle("Pet Simulator - " + petName);
     }
 
+    // create the Home Scene
     private Scene createHomeScene(Stage primaryStage) {
         // title
         Text title = new Text("Pet Simulator");
@@ -138,7 +247,8 @@ public class Main extends Application {
 
         TextField nameInput = new TextField();
         nameInput.setPromptText("Enter your pet's name");
-        nameInput.setPrefWidth(200);
+        nameInput.setPrefWidth(150);
+        nameInput.setMaxWidth(150);
 
         // start button
         Button startButton = new Button("Start Game");
@@ -157,16 +267,25 @@ public class Main extends Application {
 
         VBox homeLayout = new VBox(20, title, nameLabel, nameInput, startButton);
         homeLayout.setAlignment(Pos.CENTER);
+        homeLayout.setStyle("-fx-background-color: lightyellow;");
 
         return new Scene(homeLayout, 600, 700);
     }
 
+    // create the Game Scene
     private Scene createGameScene(Stage primaryStage, String petName) {
         myPet = new Pet(petName);
 
+        // background timer for stat decay
+        Timeline decayTimer = new Timeline(new KeyFrame(Duration.seconds(10), e -> {
+            decayStats();
+        }));
+        decayTimer.setCycleCount(Timeline.INDEFINITE); // run forever
+        decayTimer.play();
+
         // loading sprite sheet image to be used within program
         Image spriteSheet = new Image("file:src/images/pet.png");
-        ImageView spriteView = new ImageView(spriteSheet);
+        spriteView = new ImageView(spriteSheet);
 
         // setting up the view for each sprite at 384x384 pixels
         spriteView.setViewport(new Rectangle2D(0, 0, 384, 384));
@@ -186,6 +305,10 @@ public class Main extends Application {
             // check if animation is already running
             if (isAnimationRunning) {
                 return; // ignore button click
+            }
+
+            if (isPetCrying) {
+                stopCrying(); // stops all crying timelines
             }
 
             isAnimationRunning = true;
@@ -216,6 +339,8 @@ public class Main extends Application {
                 // re-enable buttons when animation finishes
                 isAnimationRunning = false;
                 enableButtons();
+
+                checkForEmptyStats();
             });
 
             timeline.play();
@@ -230,6 +355,10 @@ public class Main extends Application {
             // check if animation is already running
             if (isAnimationRunning) {
                 return; // ignore button click
+            }
+
+            if (isPetCrying) {
+                stopCrying(); // stops all crying timelines
             }
 
             isAnimationRunning = true;
@@ -276,6 +405,8 @@ public class Main extends Application {
                 afterTimeline.setOnFinished(finalEvent -> {
                     isAnimationRunning = false;
                     enableButtons();
+
+                    checkForEmptyStats();
                 });
 
                 afterTimeline.play();
@@ -294,6 +425,10 @@ public class Main extends Application {
             // check if animation is already running
             if (isAnimationRunning) {
                 return; // ignore button click
+            }
+
+            if (isPetCrying) {
+                stopCrying(); // stops all crying timelines
             }
 
             isAnimationRunning = true;
@@ -327,6 +462,8 @@ public class Main extends Application {
                 pauseTimeline.setOnFinished(finalEvent -> {
                     isAnimationRunning = false;
                     enableButtons();
+
+                    checkForEmptyStats();
                 });
 
                 pauseTimeline.play();
@@ -368,11 +505,11 @@ public class Main extends Application {
 
         // text labels for each bar
         Text nutrientsLabel = new Text("Nutrients");
-        nutrientsLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
+        nutrientsLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
         Text happinessLabel = new Text("Happiness");
-        happinessLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
+        happinessLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
         Text energyLabel = new Text("Energy");
-        energyLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
+        energyLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
 
         // containers for bars with their labels
         VBox nutrientBarWithLabel = new VBox(5, nutrientBarContainer, nutrientsLabel);
@@ -420,6 +557,8 @@ public class Main extends Application {
         // layout for the gui components
         VBox root = new VBox(10, topSpacer, allBarsContainer, spriteView, buttonContainer, bottomSpacer);
         root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: beige;");
+
 
         Scene scene = new Scene(root, 600, 700);
         return scene;

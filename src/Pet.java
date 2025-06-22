@@ -32,20 +32,20 @@ public class Pet {
 
     // function to feed pet, increases hunger + happiness
     public void feed() {
-        nutrients = clampStat(nutrients + 3);
+        nutrients = clampStat(nutrients + 5);
         happiness = clampStat(happiness + 1);
     }
 
     // function to play with pet, increases happiness, but decreases hunger and energy
     public void play() {
-        happiness = clampStat(happiness + 2);
+        happiness = clampStat(happiness + 5);
         energy = clampStat(energy - 1);
         nutrients = clampStat(nutrients - 1);
     }
 
     // function to make pet sleep
     public void sleep() {
-        energy = clampStat(energy + 3);
+        energy = clampStat(energy + 5);
         nutrients = clampStat(nutrients - 1);
     }
 
@@ -59,6 +59,18 @@ public class Pet {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public void setNutrients(int nutrients) {
+        this.nutrients = clampStat(nutrients);
+    }
+
+    public void setHappiness(int happiness) {
+        this.happiness = clampStat(happiness);
+    }
+
+    public void setEnergy(int energy) {
+        this.energy = clampStat(energy);
     }
 
     public String getStatus() {
