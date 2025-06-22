@@ -13,6 +13,7 @@ import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 
 
 public class Main extends Application {
@@ -102,12 +103,12 @@ public class Main extends Application {
 
         Text petStatus = new Text(myPet.getStatus());
 
-        Button feedButton = new Button("Feed Pet");
-        Button playButton = new Button("Play with Pet");
-        Button sleepButton = new Button("Put Pet to Sleep");
+        ImageView feedButton = new ImageView(new Image("file:src/images/food.png"));
+        ImageView playButton = new ImageView(new Image("file:src/images/play.png"));
+        ImageView sleepButton = new ImageView(new Image("file:src/images/sleep.png"));
 
         // button to feed the pet
-        feedButton.setOnAction(e -> {
+        feedButton.setOnMouseClicked(e -> {
             myPet.feed();
             petStatus.setText(myPet.getStatus());
             Timeline timeline = new Timeline();
@@ -139,7 +140,7 @@ public class Main extends Application {
         });
 
         // button to play with pet
-        playButton.setOnAction(e -> {
+        playButton.setOnMouseClicked(e -> {
             myPet.play();
             petStatus.setText(myPet.getStatus());
             spriteView.setViewport(new Rectangle2D(384 * 6, 0, 384, 384));
@@ -188,7 +189,7 @@ public class Main extends Application {
         });
 
         // button to put the pet to sleep
-        sleepButton.setOnAction(e -> {
+        sleepButton.setOnMouseClicked(e -> {
             myPet.sleep();
             petStatus.setText(myPet.getStatus());
             spriteView.setViewport(new Rectangle2D(384 * 3, 0, 384, 384));
@@ -250,12 +251,39 @@ public class Main extends Application {
         HBox happinessBarContainer = new HBox(happinessFillBar, happinessEmptyBar);
         HBox energyBarContainer = new HBox(energyFillBar, energyEmptyBar);
 
+        // text labels for each bar
+        Text nutrientsLabel = new Text("Nutrients");
+        Text happinessLabel = new Text("Happiness");
+        Text energyLabel = new Text("Energy");
+
+        // containers for bars with their labels
+        VBox nutrientBarWithLabel = new VBox(5, nutrientBarContainer, nutrientsLabel);
+        nutrientBarWithLabel.setAlignment(Pos.CENTER);
+
+        VBox happinessBarWithLabel = new VBox(5, happinessBarContainer, happinessLabel);
+        happinessBarWithLabel.setAlignment(Pos.CENTER);
+
+        VBox energyBarWithLabel = new VBox(5, energyBarContainer, energyLabel);
+        energyBarWithLabel.setAlignment(Pos.CENTER);
+
         // container for all of the bars in one
-        HBox allBarsContainer = new HBox(20, nutrientBarContainer, happinessBarContainer, energyBarContainer);
+        HBox allBarsContainer = new HBox(30, nutrientBarWithLabel, happinessBarWithLabel, energyBarWithLabel);
         allBarsContainer.setAlignment(Pos.CENTER);
 
+        // container for all buttons
+        HBox buttonContainer = new HBox(30, feedButton, playButton, sleepButton);
+        buttonContainer.setAlignment(Pos.CENTER);
+
+        // create an invisible spacer at top
+        Region topSpacer = new Region();
+        topSpacer.setPrefHeight(20); // 20 pixels of empty space
+
+        // create an invisible spacer at bottom
+        Region bottomSpacer = new Region();
+        bottomSpacer.setPrefHeight(20); // 20 pixels of empty space
+
         // layout for the gui components
-        VBox root = new VBox(10, allBarsContainer, spriteView, petStatus, feedButton, playButton, sleepButton);
+        VBox root = new VBox(10, topSpacer, allBarsContainer, spriteView, buttonContainer, bottomSpacer);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 600);
