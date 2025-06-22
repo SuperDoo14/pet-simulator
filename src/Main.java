@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.control.TextField;
 
 
 public class Main extends Application {
@@ -26,6 +27,12 @@ public class Main extends Application {
     private Rectangle happinessEmptyBar;
     private Rectangle energyFillBar;
     private Rectangle energyEmptyBar;
+
+    private ImageView feedButton;
+    private ImageView playButton;
+    private ImageView sleepButton;
+
+    private boolean isAnimationRunning = false;
 
     private Pet myPet;
 
@@ -86,11 +93,76 @@ public class Main extends Application {
         }
     }
 
+    // disable all buttons from being clicked while animation runs
+    private void disableButtons() {
+        feedButton.setDisable(true);
+        playButton.setDisable(true);
+        sleepButton.setDisable(true);
+    }
 
+    // enable buttons to be clicked again
+    private void enableButtons() {
+        feedButton.setDisable(false);
+        playButton.setDisable(false);
+        sleepButton.setDisable(false);
+    }
 
     @Override
     public void start(Stage primaryStage) {
-        myPet = new Pet("cat");
+        Scene homeScene = createHomeScene(primaryStage);
+
+        // show home scene first
+        primaryStage.setScene(homeScene);
+        primaryStage.show();
+
+        Scene gameScene = createHomeScene(primaryStage);
+        primaryStage.setScene(gameScene);
+        primaryStage.setTitle("Pet Simulator");
+        primaryStage.show();
+    }
+
+    private void switchToGame(Stage primaryStage, String petName) {
+        Scene gameScene = createGameScene(primaryStage, petName);
+        primaryStage.setScene(gameScene);
+        primaryStage.setTitle("Pet Simulator - " + petName);
+    }
+
+    private Scene createHomeScene(Stage primaryStage) {
+        // title
+        Text title = new Text("Pet Simulator");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 30));
+
+        // pet name input
+        Text nameLabel = new Text("Enter your pet's name:");
+        nameLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 16));
+
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("Enter your pet's name");
+        nameInput.setPrefWidth(200);
+
+        // start button
+        Button startButton = new Button("Start Game");
+        startButton.setFont(Font.font("Verdana", FontWeight.BOLD, 16));
+
+        // button action to switch to play game
+        startButton.setOnAction(e -> {
+            String petName = nameInput.getText().trim();
+            if (petName.isEmpty()) {
+                petName = "pet";
+            }
+
+            // switch to game scene
+            switchToGame(primaryStage, petName);
+        });
+
+        VBox homeLayout = new VBox(20, title, nameLabel, nameInput, startButton);
+        homeLayout.setAlignment(Pos.CENTER);
+
+        return new Scene(homeLayout, 600, 700);
+    }
+
+    private Scene createGameScene(Stage primaryStage, String petName) {
+        myPet = new Pet(petName);
 
         // loading sprite sheet image to be used within program
         Image spriteSheet = new Image("file:src/images/pet.png");
@@ -105,12 +177,20 @@ public class Main extends Application {
 
         Text petStatus = new Text(myPet.getStatus());
 
-        ImageView feedButton = new ImageView(new Image("file:src/images/food.png"));
-        ImageView playButton = new ImageView(new Image("file:src/images/play.png"));
-        ImageView sleepButton = new ImageView(new Image("file:src/images/sleep.png"));
+        feedButton = new ImageView(new Image("file:src/images/food.png"));
+        playButton = new ImageView(new Image("file:src/images/play.png"));
+        sleepButton = new ImageView(new Image("file:src/images/sleep.png"));
 
         // button to feed the pet
         feedButton.setOnMouseClicked(e -> {
+            // check if animation is already running
+            if (isAnimationRunning) {
+                return; // ignore button click
+            }
+
+            isAnimationRunning = true;
+            disableButtons();
+
             myPet.feed();
             petStatus.setText(myPet.getStatus());
             Timeline timeline = new Timeline();
@@ -132,6 +212,10 @@ public class Main extends Application {
             // once finished go back to sprite 0
             timeline.setOnFinished(event -> {
                 spriteView.setViewport(new Rectangle2D(0, 0, 384, 384));
+
+                // re-enable buttons when animation finishes
+                isAnimationRunning = false;
+                enableButtons();
             });
 
             timeline.play();
@@ -143,6 +227,14 @@ public class Main extends Application {
 
         // button to play with pet
         playButton.setOnMouseClicked(e -> {
+            // check if animation is already running
+            if (isAnimationRunning) {
+                return; // ignore button click
+            }
+
+            isAnimationRunning = true;
+            disableButtons();
+
             myPet.play();
             petStatus.setText(myPet.getStatus());
             spriteView.setViewport(new Rectangle2D(384 * 6, 0, 384, 384));
@@ -180,7 +272,14 @@ public class Main extends Application {
                 });
 
                 Timeline afterTimeline = new Timeline(hearts1, hearts2, hearts3, sprite0);
+
+                afterTimeline.setOnFinished(finalEvent -> {
+                    isAnimationRunning = false;
+                    enableButtons();
+                });
+
                 afterTimeline.play();
+
             });
 
             timeline.play();
@@ -192,6 +291,14 @@ public class Main extends Application {
 
         // button to put the pet to sleep
         sleepButton.setOnMouseClicked(e -> {
+            // check if animation is already running
+            if (isAnimationRunning) {
+                return; // ignore button click
+            }
+
+            isAnimationRunning = true;
+            disableButtons();
+
             myPet.sleep();
             petStatus.setText(myPet.getStatus());
             spriteView.setViewport(new Rectangle2D(384 * 3, 0, 384, 384));
@@ -216,6 +323,12 @@ public class Main extends Application {
                 Timeline pauseTimeline = new Timeline(new KeyFrame(Duration.millis(1000), pauseEvent -> {
                     spriteView.setViewport(new Rectangle2D(0, 0, 384, 384));
                 }));
+
+                pauseTimeline.setOnFinished(finalEvent -> {
+                    isAnimationRunning = false;
+                    enableButtons();
+                });
+
                 pauseTimeline.play();
             });
 
@@ -309,10 +422,7 @@ public class Main extends Application {
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 600, 700);
-
-        primaryStage.setScene(scene);
-        primaryStage.setTitle("Pet Simulator");
-        primaryStage.show();
+        return scene;
     }
 
     public static void main(String[] args) {
