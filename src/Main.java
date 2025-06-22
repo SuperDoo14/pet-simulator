@@ -14,6 +14,8 @@ import javafx.util.Duration;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 
 public class Main extends Application {
@@ -253,8 +255,11 @@ public class Main extends Application {
 
         // text labels for each bar
         Text nutrientsLabel = new Text("Nutrients");
+        nutrientsLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
         Text happinessLabel = new Text("Happiness");
+        happinessLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
         Text energyLabel = new Text("Energy");
+        energyLabel.setFont(Font.font("Courier New", FontWeight.BOLD, 14));
 
         // containers for bars with their labels
         VBox nutrientBarWithLabel = new VBox(5, nutrientBarContainer, nutrientsLabel);
@@ -270,23 +275,40 @@ public class Main extends Application {
         HBox allBarsContainer = new HBox(30, nutrientBarWithLabel, happinessBarWithLabel, energyBarWithLabel);
         allBarsContainer.setAlignment(Pos.CENTER);
 
-        // container for all buttons
-        HBox buttonContainer = new HBox(30, feedButton, playButton, sleepButton);
+        // labels for buttons
+        Text foodLabel = new Text("Food");
+        foodLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
+        Text playLabel = new Text("Play");
+        playLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
+        Text sleepLabel = new Text("Sleep");
+        sleepLabel.setFont(Font.font("Verdana", FontWeight.BOLD, 14));
+
+        VBox foodButtonWithLabel = new VBox(5, feedButton, foodLabel);
+        foodButtonWithLabel.setAlignment(Pos.CENTER);
+
+        VBox playButtonWithLabel = new VBox(5, playButton, playLabel);
+        playButtonWithLabel.setAlignment(Pos.CENTER);
+
+        VBox sleepButtonWithLabel = new VBox(5, sleepButton, sleepLabel);
+        sleepButtonWithLabel.setAlignment(Pos.CENTER);
+
+        // container for all buttons and labels
+        HBox buttonContainer = new HBox(30, foodButtonWithLabel, playButtonWithLabel, sleepButtonWithLabel);
         buttonContainer.setAlignment(Pos.CENTER);
 
         // create an invisible spacer at top
         Region topSpacer = new Region();
-        topSpacer.setPrefHeight(20); // 20 pixels of empty space
+        topSpacer.setPrefHeight(60); // 60 pixels of empty space
 
         // create an invisible spacer at bottom
         Region bottomSpacer = new Region();
-        bottomSpacer.setPrefHeight(20); // 20 pixels of empty space
+        bottomSpacer.setPrefHeight(120); // 120 pixels of empty space
 
         // layout for the gui components
         VBox root = new VBox(10, topSpacer, allBarsContainer, spriteView, buttonContainer, bottomSpacer);
         root.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(root, 500, 600);
+        Scene scene = new Scene(root, 600, 700);
 
         primaryStage.setScene(scene);
         primaryStage.setTitle("Pet Simulator");
